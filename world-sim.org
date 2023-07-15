@@ -1,0 +1,148 @@
+#+TITLE: World Simulator
+#+AUTHOR: Sushanta Banerjee, Arijit Mondal
+
+* Objective
+
+The idea is to create a game where several [[Entities]] who try to
+simulate a [[World]]. To simulate the world a player will be able to
+create entities which interacts with each other. The world in
+which entities reside is made up of small [[Cell]]s in a grid form. There
+could be multiple entities that live in a single cell. Though they may
+or may not interact with each other. The player will be able to  click
+on a single cell while selecting a provided entity to let them [[Spawn]]
+in that particular cell. Though further spawing is possible, it may
+not be required as entites themselves can reproduce to keep their
+count. Most entities also come with a fixed [[Life]]. When Life of one
+entity is completely consumed it will result in termination of that
+entity. The goal for the player is to create a [[complete world]] where
+all the  provided entities would remain in perfect harmony for as long
+as possible. Stability of the current world will be indicated by a
+score to the player. This score is determined by how long the world
+has run its course and how many entities and types of entities there
+are in the game.
+
+* Implementation
+
+** Where it all begins
+
+A game in its simple form is made up of three phases.
+
+- Initialization
+- Main Loop
+- Shutdown
+
+In initialization all the nessary dependencies are resolved. Main Loop
+continously runs until a certain condition fails and followed by main
+loop a shutdown function, that deallocates all the allocated
+memory blocks.
+
+
+#+BEGIN_SRC python :tangle "main.py"
+from initialize import initialize
+from main_loop import main_loop
+from shutdown import shutdown
+
+def main():
+    initialization_failed = False
+    try:
+        initialize()
+    except Exception:
+        initialization_failed = True
+    
+    running = True
+    while running and not initialization_failed:
+        running = main_loop()
+
+    try:
+        shutdown()
+    except Exception:
+        exit(1)
+
+if __name__ == '__main__':
+    main()
+#+END_SRC
+
+*** Singleton
+#+BEGIN_SRC python :tangle "singleton.py"
+global display
+global display_color
+#+END_SRC
+*** Initialization
+
+#+BEGIN_SRC python :tangle "initialize.py"
+import pygame
+import singleton
+
+def initialize():
+    pygame.display.init()
+    singleton.display = pygame.display.set_mode((800, 600))
+    singleton.display_color = (40, 42, 54)
+#+END_SRC
+
+*** Main Loop
+
+#+BEGIN_SRC python :tangle "main_loop.py"
+import pygame
+import singleton
+
+def main_loop():
+    singleton.display.fill(singleton.display_color)
+    pygame.display.flip()
+    return True
+#+END_SRC
+
+*** Shutdown
+
+#+BEGIN_SRC python :tangle "shutdown.py"
+import pygame
+import singleton
+
+def shutdown():
+    singleton.display = NULL
+    pygame.display.quit()
+#+END_SRC
+
+* Glossary
+
+** Cell
+
+<<Cell>>
+
+It is defined as a single grid of the World. It is identified using
+its co-ordinate values.
+
+** Complete World
+
+<<Complete World>>
+
+It is an abstract concept that refers that the world will be as complex
+as the real world.
+
+** Entities
+
+<<Entities>>
+
+A ceptual life form which has a definite life span. It tries to
+simulate life form based on certain parameters and pre-defined
+properties.
+
+** Life
+
+<<Life>>
+
+Life is a variable associated with an entity. When it reaches to 0
+(zero) or below it results in termination of the entity.
+
+** Spawn
+
+<<Spawn>>
+
+This term refers to the creation of new entities either by means of
+reproduction or by the player.
+
+** World
+
+<<World>>
+
+It is a container, in which all data related to the world environment
+is stored in. It is represented as a grid in the game view.
