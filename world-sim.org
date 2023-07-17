@@ -19,7 +19,7 @@ all the  provided entities would remain in perfect harmony for as long
 as possible. Stability of the current world will be indicated by a
 score to the player. This score is determined by how long the world
 has run its course and how many entities and types of entities there
-are in the game.
+are in the world.
 
 * Implementation
 
@@ -32,52 +32,66 @@ A game in its simple form is made up of three phases.
 - Shutdown
 
 In initialization all the nessary dependencies are resolved. Main Loop
-continously runs until a certain condition fails and followed by main
-loop a shutdown function, that deallocates all the allocated
-memory blocks.
+continously runs until a certain condition fails and is followed by a
+shutdown function, that deallocates all the allocated memory blocks.
 
+In our program this is achieved by main.py. Which tries to initialize
+the game engine using the initialize() function which is provided by
+the initialize module. In case it fails to initialize the game it will
+simply exit.
+
+After initialization is successfull the game continously runs the
+main_loop() provided by main_loop module until it returns False.
+
+After main_loop() returns False, shutdown() function is called which
+again is given by the shutdown module, which shuts down the system.
 
 #+BEGIN_SRC python :tangle "main.py"
 from initialize import initialize
 from main_loop import main_loop
 from shutdown import shutdown
 
-def main():
-    initialization_failed = False
-    try:
-        initialize()
-    except Exception:
-        initialization_failed = True
-    
-    running = True
-    while running and not initialization_failed:
-        running = main_loop()
 
-    try:
-        shutdown()
-    except Exception:
-        exit(1)
+def main():
+    initialize()
+    main_loop()
+    shutdown()
+
 
 if __name__ == '__main__':
     main()
 #+END_SRC
 
 *** Singleton
+
+This module provides some global variables that can be used to share
+data in other modules.
+
 #+BEGIN_SRC python :tangle "singleton.py"
-global display
-global display_color
+class Display:
+    global display
+    global display_color
 #+END_SRC
+
 *** Initialization
 
 #+BEGIN_SRC python :tangle "initialize.py"
 import pygame
 import singleton
 
+
+def _init_display():
+    try:
+        pygame.display.init()
+        singleton.Display.display = pygame.display.set_mode((800, 600))
+        singleton.Display.display_color = (40, 42, 54)
+    except Exception:
+        exit(1)
+
+
 def initialize():
-    pygame.display.init()
-    singleton.display = pygame.display.set_mode((800, 600))
-    singleton.display_color = (40, 42, 54)
-#+END_SRC
+    _init_display()
+    #+END_SRC
 
 *** Main Loop
 
@@ -85,9 +99,10 @@ def initialize():
 import pygame
 import singleton
 
+
 def main_loop():
-    singleton.display.fill(singleton.display_color)
-    pygame.display.flip()
+    singleton.Display.display.fill(singleton.display_color)
+    pygame.Display.display.flip()
     return True
 #+END_SRC
 
@@ -97,10 +112,57 @@ def main_loop():
 import pygame
 import singleton
 
+
 def shutdown():
-    singleton.display = NULL
-    pygame.display.quit()
+    singleton.display = None
+    pygame.Display.display.quit()
 #+END_SRC
+
+** How the Game actually Works?
+
+The game is logically divided into three main parts.
+
+- The Viewport
+- The World
+- The Listener
+
+*** The Viewport
+
+Viewport is the system that enables the player to interact with The
+World. Viewport is the display that pops up when a player starts the
+game.
+
+In viewport the state of the world is shown in a visual grid
+format. State of individual grids can be viewed by the player if they
+hover over a single cell using their mouse. In the grid viewable
+entities can also be seen by a special color for that entity.
+
+Followed by the grid another area is presented to the player. Here all
+the entities that the player can spawn is listed with their color
+coding. Player can click on any entity on this list to select them in
+order to spawn them by clicking on a spawnable cell on the world.
+
+A cell is spawnable for a given entity is determined using their spawn
+condition. It is to be noted while there can be many entities in a
+given grid only one is shown at any given moment.
+
+The Viewport uses The World to render the grid. Viewport just renders
+the state of the world, shows current score and let's player spawn an
+entity. It does not do anything else.
+
+*** The World
+
+The World is the actual storage for World data. Here all the details
+about all the cells and entity is stored. Basically if you read the
+world you would know exactly the what the state of the current world
+is. All other module needs to communicate with this module to know the
+state of the world and also to try to change the state of the world.
+
+*** The Listener
+
+The Listener is a special module that listens to the requests made by
+each entity in any given moment and then it sends those requests to
+the world to realize them.
 
 * Glossary
 
