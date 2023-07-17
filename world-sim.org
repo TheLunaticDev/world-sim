@@ -51,7 +51,6 @@ from initialize import initialize
 from main_loop import main_loop
 from shutdown import shutdown
 
-
 def main():
     initialize()
     main_loop()
@@ -71,6 +70,10 @@ data in other modules.
 class Display:
     global display
     global display_color
+
+class Grid:
+    global size
+    global cell_size
 #+END_SRC
 
 *** Initialization
@@ -78,19 +81,25 @@ class Display:
 #+BEGIN_SRC python :tangle "initialize.py"
 import pygame
 import singleton
-
+from world import World
+from entity import Enity
 
 def _init_display():
     try:
         pygame.display.init()
-        singleton.Display.display = pygame.display.set_mode((800, 600))
+        singleton.Display.display = pygame.display.set_mode((800, 540))
         singleton.Display.display_color = (40, 42, 54)
+        singleton.Grid.size = 20
+        singleton.Grid.cell_size = 500 / singleton.Grid.size
     except Exception:
         exit(1)
 
 
 def initialize():
     _init_display()
+    world = World()
+    entity = Entity()
+    print(world)
     #+END_SRC
 
 *** Main Loop
@@ -101,9 +110,46 @@ import singleton
 
 
 def main_loop():
-    singleton.Display.display.fill(singleton.display_color)
-    pygame.Display.display.flip()
-    return True
+    running = True
+    while running:
+        singleton.Display.display.fill(singleton.Display.display_color)
+        render_grid()
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    cell_pos = get_cell_coord_from_mouse(event.pos)
+                    print(cell_pos)
+
+
+def render_grid():
+    render_box()
+    render_horizontal_lines()
+    render_vertical_lines()
+
+def render_box():
+    pygame.draw.rect(singleton.Display.display, (248, 248, 242), pygame.Rect(20, 20, 500, 500), 1)
+
+def render_vertical_lines():
+    for i in range(singleton.Grid.size - 1):
+        pygame.draw.line(singleton.Display.display,
+                         (248, 248, 242),
+                         (20 + (500/singleton.Grid.size) * (i+1), 20),
+                         (20 + (500/singleton.Grid.size) * (i + 1), 20 + 500))
+
+def render_horizontal_lines():
+    for i in range(singleton.Grid.size - 1):
+        pygame.draw.line(singleton.Display.display,
+                         (248, 248, 242),
+                         (20 ,20 + (500/singleton.Grid.size) * (i+1)),
+                         (20 + 500, 20 + (500/singleton.Grid.size) * (i + 1)))
+        
+def get_cell_coord_from_mouse(pos):
+    cell_x = pos[0] // singleton.Grid.cell_size
+    cell_y = pos[1] // singleton.Grid.cell_size
+    return (cell_x, cell_y)
 #+END_SRC
 
 *** Shutdown
@@ -115,7 +161,7 @@ import singleton
 
 def shutdown():
     singleton.display = None
-    pygame.Display.display.quit()
+    pygame.display.quit()
 #+END_SRC
 
 ** How the Game actually Works?
@@ -126,6 +172,13 @@ The game is logically divided into three main parts.
 - The World
 - The Listener
 
+*** Entity
+
+    #+begin_src python :tangle "entity.py"
+class Enity:
+    def __init__(self, Life):
+        self._life = Life 
+    #+end_src
 *** The Viewport
 
 Viewport is the system that enables the player to interact with The
@@ -147,7 +200,8 @@ condition. It is to be noted while there can be many entities in a
 given grid only one is shown at any given moment.
 
 The Viewport uses The World to render the grid. Viewport just renders
-the state of the world, shows current score and let's player spawn an
+the 
+state of the world, shows current score and let's player spawn an
 entity. It does not do anything else.
 
 *** The World
@@ -158,6 +212,11 @@ world you would know exactly the what the state of the current world
 is. All other module needs to communicate with this module to know the
 state of the world and also to try to change the state of the world.
 
+#+begin_src python :tangle "world.py"
+class World:
+    def __init__(self):
+        self.world = []
+#+end_src
 *** The Listener
 
 The Listener is a special module that listens to the requests made by
