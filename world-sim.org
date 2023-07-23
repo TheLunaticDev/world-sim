@@ -71,10 +71,35 @@ class Display:
     global display
     global display_color
 
+
 class Grid:
     global size
     global cell_size
+
+
+World = None
 #+END_SRC
+
+*** Config File
+
+This is a file that the user can optionally create to change some
+default settings that the game engine assumes. It uses a general INI
+file like format that can be found on windows machine.
+
+To make an unique config file the user must create a file called
+"config.ini" in the same directory as the program. User can copy the
+already provided "default-config.ini" file. Changing any setting on
+"config.ini", if it is valid would replace the setting provided by
+"default-config.ini".
+
+#+begin_src prog :tangle "default-config.ini"
+[Display]
+BackgroundColor = (40, 42, 54)
+#+end_src
+
+**** Config Parser
+
+This module parses the Config file and sets up appropriate 
 
 *** Initialization
 
@@ -97,9 +122,7 @@ def _init_display():
 
 def initialize():
     _init_display()
-    world = World()
-    entity = Entity()
-    print(world)
+    singleton.World = World(singleton.Grid.size)
     #+END_SRC
 
 *** Main Loop
@@ -214,8 +237,10 @@ state of the world and also to try to change the state of the world.
 
 #+begin_src python :tangle "world.py"
 class World:
-    def __init__(self):
-        self.world = []
+    def __init__(self, size):
+        self.world = [[] for _ in range(size)]
+        for i in range(size):
+            self.world[i] = [[] for _ in range(size)]
 #+end_src
 *** The Listener
 
