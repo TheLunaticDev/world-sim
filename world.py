@@ -15,8 +15,10 @@ def calculate_next_world():
     singleton.age += 1
     update_complexity()
     update_score()
+    apply_entity_logic_all()
     reduce_life_all()
     kill_entities_with_no_life()
+    kill_residents_on_world_border()
 
 
 def get_total_entity_count():
@@ -26,7 +28,6 @@ def get_total_entity_count():
             entities_in_location = len(singleton.World.world[i][j])
             total_entity_count += entities_in_location
     return total_entity_count
-
 
 
 def update_complexity():
@@ -83,3 +84,22 @@ def kill_entities_with_no_life():
                 if entity is not None:
                     if entity.life <= 0:
                         del singleton.World.world[i][j][id]
+
+
+def apply_entity_logic_all():
+    to_be_removed = []
+    to_be_added = []
+    for i in range(len(singleton.World.world)):
+        for j in range(len(singleton.World.world[i])):
+            for id, entity in enumerate(singleton.World.world[i][j]):
+                entity.act(i, j, id, to_be_removed, to_be_added)
+
+    for (i, j, id) in to_be_removed:
+        del singleton.World.world[i][j][id]
+
+    for (entity, x, y) in to_be_added:
+        singleton.World.add(entity, x, y)
+
+
+def kill_residents_on_world_border():
+    pass
