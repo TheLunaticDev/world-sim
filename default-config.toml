@@ -12,7 +12,7 @@ line_color = '#f8f8f2'
 # Change this to set how big of a world you want to work with
 # Changing this to a very big number may make the game unplayable as
 # the grid cells will become very small and indistinguishable
-size = 5
+size = 25
 
 # Base world progression speed in milliseconds
 # In game you can speed this up or slow it down by order or 2 upto

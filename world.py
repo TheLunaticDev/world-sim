@@ -18,7 +18,10 @@ def calculate_next_world():
     apply_entity_logic_all()
     reduce_life_all()
     kill_entities_with_no_life()
-    kill_residents_on_world_border()
+    print('Age: ' + str(singleton.age))
+    for i in range(len(singleton.World.world)):
+        print(singleton.World.world[i])
+    print('------------------------------')
 
 
 def get_total_entity_count():
@@ -87,19 +90,19 @@ def kill_entities_with_no_life():
 
 
 def apply_entity_logic_all():
-    to_be_removed = []
+    global to_be_added
+    global to_be_removed
     to_be_added = []
+    to_be_removed = []
     for i in range(len(singleton.World.world)):
         for j in range(len(singleton.World.world[i])):
             for id, entity in enumerate(singleton.World.world[i][j]):
                 entity.act(i, j, id, to_be_removed, to_be_added)
+    try:
+        for (i, j, id) in to_be_removed:
+            del singleton.World.world[i][j][id]
 
-    for (i, j, id) in to_be_removed:
-        del singleton.World.world[i][j][id]
-
-    for (entity, x, y) in to_be_added:
-        singleton.World.add(entity, x, y)
-
-
-def kill_residents_on_world_border():
-    pass
+        for (entity, x, y) in to_be_added:
+            singleton.World.add(entity, x, y)
+    except IndexError:
+        pass

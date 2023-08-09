@@ -45,6 +45,7 @@ class Plankton(Entity):
                     if entity is not None:
                         if isinstance(entity, Plankton):
                             to_be_removed.append((i, j, id))
+                            entity.life -= 999999
                     else:
                         break
         surrounding_count = 0
@@ -80,6 +81,7 @@ class Plankton(Entity):
             try:
                 for entity in singleton.World.world[i-1][j-1]:
                     if isinstance(entity, Plankton):
+                        print("Spawned on " + str(i) + ", " + str(j))
                         break
                 to_be_added.append((
                     Plankton(i-1, j-1), i-1, j-1))
