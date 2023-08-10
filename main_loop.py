@@ -101,7 +101,7 @@ def render_score():
                              singleton.options['Display']['line_color'])
     singleton.font.render_to(pygame.display.get_surface(),
                              (550, 85),
-                             str(singleton.score),
+                             str(singleton.score // (singleton.age + 1)),
                              singleton.options['Display']['line_color'])
 
 
@@ -178,8 +178,8 @@ def render_entity_control_panel_previous():
         pygame.Rect(540, 470, 240, 50), 1
     )
     singleton.font.render_to(pygame.display.get_surface(),
-                             (625, 480),
-                             'Back',
+                             (600, 480),
+                             'World Sim',
                              singleton.options['Display']['line_color'])
 
 

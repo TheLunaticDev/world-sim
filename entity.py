@@ -29,7 +29,7 @@ class Ether(Entity):
 class Plankton(Entity):
     def __init__(self, name='Plankton', life=10, posx=0, posy=0,
                  color='#50fa7b', tags=['level-0']):
-        super().__init__(name, life, posx, posy, color, tags)
+        super().__init__(name, 10, posx, posy, color, tags)
 
     def act(self, i, j, id, to_be_removed=[], to_be_added=[]):
         entity_cram = 0
@@ -78,48 +78,56 @@ class Plankton(Entity):
             pass
 
         if surrounding_count >= 2:
+            print("Surrounding Count for entity at " + str(i) + ", " + str(j) + " is " + str(surrounding_count))
             try:
                 for entity in singleton.World.world[i-1][j-1]:
                     if isinstance(entity, Plankton):
-                        print("Spawned on " + str(i) + ", " + str(j))
                         break
+                print("Spawned C1")
                 to_be_added.append((
                     Plankton(i-1, j-1), i-1, j-1))
                 for entity in singleton.World.world[i][j-1]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C2")
+                to_be_added.append((
                         Plankton(i, j-1), i, j-1))
                 for entity in singleton.World.world[i+1][j-1]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C3")
+                to_be_added.append((
                         Plankton(i+1, j-1), i+1, j-1))
                 for entity in singleton.World.world[i-1][j]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C4")
+                to_be_added.append((
                         Plankton(i-1, j), i-1, j))
                 for entity in singleton.World.world[i+1][j]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C5")
+                to_be_added.append((
                         Plankton(i+1, j), i+1, j))
                 for entity in singleton.World.world[i-1][j+1]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C6")
+                to_be_added.append((
                         Plankton(i-1, j+1), i-1, j+1))
                 for entity in singleton.World.world[i][j+1]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
+                print("Spawned C7")
+                to_be_added.append((
                         Plankton(i, j+1), i, j+1))
                 for entity in singleton.World.world[i+1][j+1]:
                     if isinstance(entity, Plankton):
                         break
-                    to_be_added.append((
-                        Plankton(i+1, j+1), i+1, j+1))
+                print("Spawned C8")
+                to_be_added.append((
+                       Plankton(i+1, j+1), i+1, j+1))
             except IndexError:
                 pass
 
@@ -138,8 +146,119 @@ class Protists(Entity):
         #     singleton.World.world[i][j][id].sex,
         #     posx=i+1, posy=j+1)
         # to_be_removed.append((i, j, id))
+        entity_cram = 0
+        for id, entity in enumerate(singleton.World.world[i][j]):
+            if entity is not None:
+                if isinstance(entity, Protists):
+                    entity_cram += 1
+
+        if entity_cram > 1:
+            for id, entity in enumerate(singleton.World.world[i][j]):
+                entity_cram -= 1
+                if entity_cram:
+                    if entity is not None:
+                        if isinstance(entity, Protists):
+                            to_be_removed.append((i, j, id))
+                            entity.life -= 999999
+                    else:
+                        break
         # to_be_added.append((new_object, i+1, j+1))
-        pass
+        for id, entity in enumerate(singleton.World.world[i][j]):
+            if isinstance(entity, Plankton):
+                self.life += entity.life
+                to_be_removed.append((i, j, id))
+
+        match_found = False
+        try:
+            for entity in singleton.World.world[i-1][j-1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i][j-1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i+1][j-1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i-1][j]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i+1][j]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i-1][j+1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i][j+1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+            for entity in singleton.World.world[i+1][j+1]:
+                if isinstance(entity, Protists):
+                    if entity.sex != self.sex:
+                        match_found = True
+        except IndexError:
+            pass
+
+        if match_found == True:
+            try:
+                for entity in singleton.World.world[i-1][j-1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C1")
+                to_be_added.append((
+                    Protists(i-1, j-1), i-1, j-1))
+                for entity in singleton.World.world[i][j-1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C2")
+                to_be_added.append((
+                        Protists(i, j-1), i, j-1))
+                for entity in singleton.World.world[i+1][j-1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C3")
+                to_be_added.append((
+                        Protists(i+1, j-1), i+1, j-1))
+                for entity in singleton.World.world[i-1][j]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C4")
+                to_be_added.append((
+                        Protists(i-1, j), i-1, j))
+                for entity in singleton.World.world[i+1][j]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C5")
+                to_be_added.append((
+                        Protists(i+1, j), i+1, j))
+                for entity in singleton.World.world[i-1][j+1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C6")
+                to_be_added.append((
+                        Protists(i-1, j+1), i-1, j+1))
+                for entity in singleton.World.world[i][j+1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C7")
+                to_be_added.append((
+                        Protists(i, j+1), i, j+1))
+                for entity in singleton.World.world[i+1][j+1]:
+                    if isinstance(entity, Protists):
+                        break
+                print("Spawned C8")
+                to_be_added.append((
+                       Protists(i+1, j+1), i+1, j+1))
+            except IndexError:
+                pass
+
+
 
     def reproduce(self, id):
         pass

@@ -19,8 +19,15 @@ def calculate_next_world():
     reduce_life_all()
     kill_entities_with_no_life()
     print('Age: ' + str(singleton.age))
+    #for i in range(len(singleton.World.world)):
+    #    print(singleton.World.world[i])
+    #print('------------------------------')
     for i in range(len(singleton.World.world)):
-        print(singleton.World.world[i])
+        for j in range(len(singleton.World.world[i])):
+            for entity in range(len(singleton.World.world[i][j])):
+                if entity is not None:
+                    print(singleton.World.world[i][j][entity], end='')
+                    print(' Loc:(' + str(i) + ', ' + str(j) + ') Life: ' + str(singleton.World.world[i][j][entity].life))
     print('------------------------------')
 
 
